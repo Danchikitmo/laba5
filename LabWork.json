@@ -1,0 +1,21 @@
+{
+  "added-works": [
+    {
+      "id": "1",
+      "name": "biology",
+      "coordinates": {
+        "x": "1",
+        "y": "5"
+      },
+      "minimalPoint": "56",
+      "description": "lox",
+      "creationDate": "2024-04-18T12:30:45.123456789+03:00",
+      "averagePoint": "78",
+      "difficulty": "VERY_EASY",
+      "author": {
+        "name": "Иван",
+        "birthday": "2024-04-18T12:30:45.123456789+03:00",
+        "height": "56"
+      }
+    }]
+}
