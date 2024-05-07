@@ -11,7 +11,7 @@ public class PersonBuilder extends Builder{
     public Person create(){
         return new Person(
                 new PersonNameBuilder().create(),
-                stringBuilder("Введите дату рождения"),
+                stringBuilder("дату рождения"),
                 doubleBuilder("вес")
         );
     }

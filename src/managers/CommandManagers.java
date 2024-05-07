@@ -14,7 +14,7 @@ public class CommandManagers {
     public void execute(String name, String args){
         Command command = commands.get(name);
         if(command == null){
-            System.out.println("Такой команды нет");
+            System.err.println("Такой команды нет");
         } else {
             command.execute(args);
         }

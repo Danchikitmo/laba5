@@ -58,7 +58,6 @@ public class LabWork implements Validatable, Comparable<LabWork> {
 
 
     public Integer getId(){
-        System.out.println(id);
         return id;
     }
 
