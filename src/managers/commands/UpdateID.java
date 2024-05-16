@@ -13,7 +13,7 @@ public class UpdateID extends Command implements CommandExecutor {
     private Scanner method;
 
     public UpdateID(CollectionManager collectionManager){
-        super("update");
+        super("update id");
         this.collectionManager = collectionManager;
     }
 

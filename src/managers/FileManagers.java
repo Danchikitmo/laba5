@@ -4,6 +4,8 @@ import Adapter.ZonedDataTimeAdapter;
 import Data.Works;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import java.io.*;
 import java.time.ZonedDateTime;
@@ -28,8 +30,9 @@ public class FileManagers {
 
     public static void writeFile(String works){
         try (Writer writer = new FileWriter(filePath + "LabWork.json")){
+            JsonElement jsonElement = new JsonParser().parse(works);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            gson.toJson(works, writer);
+            gson.toJson(jsonElement, writer);
             System.out.println("Данные успешно записаны в файл");
         } catch (IOException e){
             System.err.println("Что-то пошло не так при записи в файл" + e.getMessage());

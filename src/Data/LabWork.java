@@ -32,6 +32,8 @@ public class LabWork implements Validatable, Comparable<LabWork> {
         this.author = author;
     }
 
+
+
     public LabWork(){
 
     }

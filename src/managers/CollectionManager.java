@@ -1,13 +1,16 @@
 package managers;
 
 //import Data.Comparator.LabWorkComparator;
+
 import Adapter.ZonedDataTimeAdapter;
 import Data.LabWork;
+import Data.Person;
 import builder.LabWorkBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import exceptions.EmptyCollectionException;
 import exceptions.InvalidDataException;
+import managers.comparators.LabWorkComparator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,6 +18,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class CollectionManager {
     private final LocalDate localDate;
@@ -50,7 +54,7 @@ public class CollectionManager {
                 remove_first : удалить первый элемент из коллекции
                 reorder : отсортировать коллекцию в порядке, обратном нынешнему
                 count_less_than_minimal_point minimalPoint : вывести количество элементов, значение поля minimalPoint которых меньше заданного
-                filter_greater_than_difficulty difficulty : вывести элементы, значение поля difficulty которых больше заданного
+                filter_greater_than_difficulty difficulty : вывести элементы, значение поля difficulty которых больше заданного, VERY_EASY = 1, INSANE = 2, VERY_HARD = 3
                 print_field_descending_author : вывести значения поля author всех элементов в порядке убывания""");
     }
 
@@ -74,6 +78,10 @@ public class CollectionManager {
         MyCollection.add(labWork);
     }
 
+    public Vector<LabWork> getLabWorks(){
+        return MyCollection;
+    }
+
     public void updateID(Integer id) throws InvalidDataException, NoSuchElementException{
         LabWork oldPerson = getPersonById(id);
         if(oldPerson == null){
@@ -85,6 +93,48 @@ public class CollectionManager {
         newLabWork.setId(id);
         MyCollection.add(newLabWork);
         System.out.println("Человек успешено обновлен");
+    }
+
+    public LabWork getWorksMinimalPoint(Integer minimalPoint){
+        int counter = 0;
+        for (LabWork labWork: MyCollection) {
+            if(minimalPoint > labWork.getMinimalPoint()){
+                counter++;
+            }
+        }
+        if (counter != 0){
+            System.out.println("Элементов, у которых minimalPoint < " + minimalPoint + " :");
+            System.out.println(counter);
+        } else {
+            throw new NoSuchElementException();
+        }
+
+        return null;
+    }
+
+    public LabWork getWorksDifficulty(Integer difficulty){
+        for (LabWork labWork: MyCollection) {
+            String difficultyLabWork = labWork.getDifficulty().toString();
+            Integer difficulty1 = 0;
+            if(difficultyLabWork == "VERY_EASY"){
+                difficulty1 = 1;
+            } else if(difficultyLabWork == "INSANE"){
+                difficulty1 = 2;
+            } else if(difficultyLabWork == "VERY_HARD"){
+                difficulty1 = 3;
+            }
+            if(difficulty < difficulty1){
+                System.out.println(labWork);
+            }
+            }
+        return null;
+    }
+
+    public Person sortAuthorById(Vector<LabWork> labWorks){
+        Vector<LabWork> sorted = (Vector<LabWork>) labWorks.stream().sorted(new LabWorkComparator()).collect(Collectors.toList());
+        System.out.println(sorted);
+        System.out.println("123");
+        return sorted.isEmpty() ? null : sorted.firstElement().getAuthor();
     }
 
     public void show() throws EmptyCollectionException{

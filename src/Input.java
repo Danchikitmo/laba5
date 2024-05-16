@@ -26,7 +26,7 @@ public class Input {
                 commandManager.execute(command[0], command[1]);
             } catch (NoSuchElementException e) {
                 System.err.println("давайте не будем так делать");
-                break;
+
             }
         }
     }
@@ -45,6 +45,9 @@ public class Input {
         commandManager.addCommand(new Exit());
         commandManager.addCommand(new RemoveFirst(this.collectionManager));
         commandManager.addCommand(new Reoder(this.collectionManager));
+        commandManager.addCommand(new LessMinimalPoint(this.collectionManager));
+        commandManager.addCommand(new BetterDifficulty(this.collectionManager));
+        commandManager.addCommand(new PrintAuthor(this.collectionManager));
     }
     public void addData(){
         String filePath = System.getenv("FILE_PATH");
