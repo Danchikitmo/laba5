@@ -25,6 +25,12 @@ public class Person implements Validatable {
     public String generatePassportId(){
         return String.valueOf(Objects.hash(passportID));
     }
+    public String getPassportID(){
+        return passportID;
+    }
+    public void setPassportID(Integer passportID){
+        this.passportID = passportID.toString();
+    }
 
     @SerializedName("personName")
     public String getName(){

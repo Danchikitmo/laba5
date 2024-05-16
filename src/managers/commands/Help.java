@@ -1,8 +1,7 @@
-package commands;
+package managers.commands;
 
 import interfaces.CommandExecutor;
 import managers.CollectionManager;
-import managers.commands.Command;
 
 public class Help extends Command implements CommandExecutor {
     private final CollectionManager collectionManager;

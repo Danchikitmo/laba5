@@ -1,16 +1,24 @@
 package managers;
 
 //import Data.Comparator.LabWorkComparator;
+
+import Adapter.ZonedDataTimeAdapter;
 import Data.LabWork;
+import Data.Person;
 import builder.LabWorkBuilder;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import exceptions.EmptyCollectionException;
 import exceptions.InvalidDataException;
+import managers.comparators.LabWorkComparator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class CollectionManager {
     private final LocalDate localDate;
@@ -46,7 +54,7 @@ public class CollectionManager {
                 remove_first : удалить первый элемент из коллекции
                 reorder : отсортировать коллекцию в порядке, обратном нынешнему
                 count_less_than_minimal_point minimalPoint : вывести количество элементов, значение поля minimalPoint которых меньше заданного
-                filter_greater_than_difficulty difficulty : вывести элементы, значение поля difficulty которых больше заданного
+                filter_greater_than_difficulty difficulty : вывести элементы, значение поля difficulty которых больше заданного, VERY_EASY = 1, INSANE = 2, VERY_HARD = 3
                 print_field_descending_author : вывести значения поля author всех элементов в порядке убывания""");
     }
 
@@ -61,15 +69,17 @@ public class CollectionManager {
 
     public void add(LabWork labWork) throws InvalidDataException{
         if(!(labWork.validated())) {
-            System.out.println("125");
             throw new InvalidDataException();
         }
         if(idIdentifier(labWork)){
-            System.out.println("123");
             System.out.println(labWork.generateID());
             labWork.setId(labWork.generateID());
         }
         MyCollection.add(labWork);
+    }
+
+    public Vector<LabWork> getLabWorks(){
+        return MyCollection;
     }
 
     public void updateID(Integer id) throws InvalidDataException, NoSuchElementException{
@@ -82,6 +92,49 @@ public class CollectionManager {
         LabWork newLabWork = LabWork.create();
         newLabWork.setId(id);
         MyCollection.add(newLabWork);
+        System.out.println("Человек успешено обновлен");
+    }
+
+    public LabWork getWorksMinimalPoint(Integer minimalPoint){
+        int counter = 0;
+        for (LabWork labWork: MyCollection) {
+            if(minimalPoint > labWork.getMinimalPoint()){
+                counter++;
+            }
+        }
+        if (counter != 0){
+            System.out.println("Элементов, у которых minimalPoint < " + minimalPoint + " :");
+            System.out.println(counter);
+        } else {
+            throw new NoSuchElementException();
+        }
+
+        return null;
+    }
+
+    public LabWork getWorksDifficulty(Integer difficulty){
+        for (LabWork labWork: MyCollection) {
+            String difficultyLabWork = labWork.getDifficulty().toString();
+            Integer difficulty1 = 0;
+            if(difficultyLabWork == "VERY_EASY"){
+                difficulty1 = 1;
+            } else if(difficultyLabWork == "INSANE"){
+                difficulty1 = 2;
+            } else if(difficultyLabWork == "VERY_HARD"){
+                difficulty1 = 3;
+            }
+            if(difficulty < difficulty1){
+                System.out.println(labWork);
+            }
+            }
+        return null;
+    }
+
+    public Person sortAuthorById(Vector<LabWork> labWorks){
+        Vector<LabWork> sorted = (Vector<LabWork>) labWorks.stream().sorted(new LabWorkComparator()).collect(Collectors.toList());
+        System.out.println(sorted);
+        System.out.println("123");
+        return sorted.isEmpty() ? null : sorted.firstElement().getAuthor();
     }
 
     public void show() throws EmptyCollectionException{
@@ -91,6 +144,22 @@ public class CollectionManager {
             for(LabWork i: MyCollection){
                 System.out.println(i);
             }
+        } else {
+            throw new EmptyCollectionException();
+        }
+    }
+
+    public void removeElement(LabWork labWork) throws NoSuchElementException{
+        if(MyCollection.contains(labWork)){
+            MyCollection.remove(labWork);
+        } else {
+            throw new NoSuchElementException();
+        }
+    }
+
+    public void removeFirst() throws EmptyCollectionException{
+        if(!MyCollection.isEmpty()){
+            MyCollection.remove(0);
         } else {
             throw new EmptyCollectionException();
         }
@@ -147,7 +216,12 @@ public class CollectionManager {
                     System.out.println("Нет такого варианта ответа");
                 }
             } else {
-                FileManagers.writeFile(MyCollection);
+                Gson gson = new GsonBuilder()
+                        .registerTypeAdapter(ZonedDateTime.class, new ZonedDataTimeAdapter())
+                        .create();
+
+                String json = gson.toJson(MyCollection);
+                FileManagers.writeFile(json);
             }
         } catch (NullPointerException e){
             System.out.println("Что-то пошло не так, попробуйте снова");
@@ -159,10 +233,8 @@ public class CollectionManager {
         if(labWorks.size() != 1){
             for (LabWork labWork: labWorks){
                 if(!idCollection.contains(labWork.getId())){
-                    System.out.println("pidr");
                     idCollection.add(labWork.getId());
                 } else {
-                    System.out.println("lox");
                     return false;
                 }
             }
@@ -172,28 +244,14 @@ public class CollectionManager {
 
     public void addToCollection(Vector<LabWork> labWorks){
         if(checkId(labWorks)){
-            System.out.println(labWorks);
             MyCollection.addAll(labWorks);
         } else {
-            System.out.println(labWorks);
             System.err.println("Что-то не так с файлом, данные не подгрузились");
         }
     }
 
-    public void addIfMax(Integer id){
-        Collections.sort(MyCollection);
-        if(MyCollection.get(MyCollection.size() - 1).getId() < id){
-            LabWorkBuilder newLabWork = new LabWorkBuilder();
-            LabWork labWork = newLabWork.create();
-            labWork.setId(id);
-            MyCollection.add(labWork);
-        } else {
-            System.err.println("Элемент меньше максимального");
-        }
-    }
-
     public static Scanner reader;
-    public void executeScript(String filePath, CommandManagers commandManager) {
+    public void executeScript(String filePath, CommandManagers commandManager, Set<String> executeScript) {
         try (Scanner scriptScanner = new Scanner(new File(filePath))) {
             reader = scriptScanner;
             while (scriptScanner.hasNextLine()) {
@@ -202,13 +260,24 @@ public class CollectionManager {
                 String commandName = commandParts[0];
                 String args = (commandParts.length > 1) ? commandParts[1] : "";
                 commandManager.execute(commandName, args);
+                if (commandName.equals("execute_script")) {
+                    if (executeScript.contains(args)) {
+                        System.err.println("Найдена рекурсия");
+                        executeScript.clear();
+                        break;
+                    }
+                    executeScript.add(args);
+                    commandManager.execute(commandName, args);
+                    executeScript.remove(args);
+                }
             }
+
         } catch (FileNotFoundException e) {
             System.err.println("Файл скрипта не найден: " + filePath);
         } catch (NoSuchElementException e) {
             System.err.println("Ошибка чтения файла скрипта: " + filePath);
         } catch (IllegalStateException e){
-            System.out.println("Чиним программу, можете продолжать дальше");
+            System.err.println("Чиним программу, можете продолжать дальше");
         }
     }
 

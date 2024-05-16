@@ -1,20 +1,21 @@
 package managers;
 
 import Adapter.ZonedDataTimeAdapter;
-import Data.LabWork;
 import Data.Works;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import java.io.*;
 import java.time.ZonedDateTime;
-import java.util.Vector;
 
 public class FileManagers {
-    static String filePath = System.getenv("FILE_PATH") + "LabWork.json";
+    static String filePath = System.getenv("FILE_PATH");
 
     public static Works readFile(String filePath){
-        try (Reader reader = new FileReader(filePath)){
+        String filePath1 = System.getenv("FILE_PATH") + "LabWork.json";
+        try (Reader reader = new FileReader(filePath1)){
             GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.registerTypeAdapter(ZonedDateTime.class, new ZonedDataTimeAdapter());
             Gson gson = gsonBuilder.create();
@@ -27,13 +28,14 @@ public class FileManagers {
         return null;
     }
 
-    public static void writeFile(Vector<LabWork> works){
-        try (Writer writer = new FileWriter(filePath)){
+    public static void writeFile(String works){
+        try (Writer writer = new FileWriter(filePath + "LabWork.json")){
+            JsonElement jsonElement = new JsonParser().parse(works);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            gson.toJson(works, writer);
+            gson.toJson(jsonElement, writer);
             System.out.println("Данные успешно записаны в файл");
         } catch (IOException e){
-            System.err.println("Что-то пошло не так при записи в файл");
+            System.err.println("Что-то пошло не так при записи в файл" + e.getMessage());
         }
     }
 
